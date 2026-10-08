@@ -50,8 +50,7 @@ export default function CalculatorPage() {
   const universities = universitiesResponse?.data || [];
   
   const { data: facultiesResponse, isLoading: isLoadingFaculties } = useCalculatorFaculties(
-    selectedUniversity?.id,
-    { enabled: !!selectedUniversity?.id }
+    selectedUniversity?.id
   );
   const faculties = facultiesResponse?.data || [];
 

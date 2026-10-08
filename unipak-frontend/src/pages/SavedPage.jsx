@@ -10,23 +10,8 @@ import GradientText from '../components/ui/GradientText';
 import { universityImages } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
 
-const useSaved = () => {
-  const context = useContext(SavedContext);
-  if (!context) {
-    // Provide a fallback if context is not yet implemented
-    return {
-      savedUniversities: [],
-      savedResults: [],
-      removeUniversity: () => {},
-      removeResult: () => {},
-      clearAll: () => {},
-    };
-  }
-  return context;
-};
-
 export default function SavedPage() {
-  const { savedUniversities, savedResults, removeUniversity, removeResult, clearAll } = useSaved();
+  const { savedUniversities, savedResults, removeUniversity, removeResult, clearAll } = useContext(SavedContext);
   const navigate = useNavigate();
 
   return (
