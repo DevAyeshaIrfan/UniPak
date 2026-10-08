@@ -64,11 +64,12 @@ export default function ExplorePage() {
     <div className="min-h-screen">
       <div className="page-container">
         {/* Header */}
-        <div className="mb-9 text-center">
+        <div className="mb-10 max-w-3xl">
           <h1 className="page-heading mb-3">
-            <GradientText>Explore Universities</GradientText>
+            <span className="text-slate-950 dark:text-white">Explore</span>{' '}
+            <GradientText>Universities</GradientText>
           </h1>
-          <p className="page-copy mx-auto">
+          <p className="page-copy">
             Discover your perfect university from across Pakistan
           </p>
         </div>

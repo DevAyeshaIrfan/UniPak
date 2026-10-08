@@ -48,32 +48,22 @@ export default function UniversityCard({ university }) {
       <motion.div
         whileHover={{ y: -3 }}
         transition={{ duration: 0.18, ease: 'easeOut' }}
-        className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[var(--shadow-soft)] transition-[border-color,box-shadow] duration-200 group-hover:border-indigo-200 group-hover:shadow-[var(--shadow-soft-lg)] dark:border-slate-800 dark:bg-slate-900 dark:group-hover:border-indigo-500/30"
+        className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[var(--shadow-soft)] transition-[border-color,box-shadow] duration-200 group-hover:border-slate-300 group-hover:shadow-[var(--shadow-soft-lg)] dark:border-slate-800 dark:bg-slate-900 dark:group-hover:border-indigo-500/30"
       >
         <div className="relative h-44 w-full overflow-hidden bg-slate-200 dark:bg-slate-800">
           <img 
             src={imagePath} 
             alt={UniversityName} 
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.025]"
+            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.025]"
             onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/400x300?text=University+Image' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/25 to-transparent" />
-          <div className="absolute bottom-4 left-4 right-4">
-            <span className={cn(
-              "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold mb-2",
-              isPublic 
-                ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" 
-                : "bg-violet-500/20 text-violet-300 border border-violet-500/30"
-            )}>
-              {Sector}
-            </span>
-            <h3 className="font-semibold text-lg text-white leading-tight line-clamp-2">
-              {UniversityName}
-            </h3>
-          </div>
         </div>
-        
-        <div className="flex flex-1 flex-col gap-3 p-4">
+        <div className="flex flex-1 flex-col gap-3 p-6">
+          <span className={cn(
+            "inline-flex w-fit items-center rounded-full border border-slate-200 px-2.5 py-1 text-[11px] font-medium dark:border-slate-700",
+            isPublic ? "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300" : "bg-white text-slate-600 dark:bg-slate-900 dark:text-slate-400"
+          )}>{Sector}</span>
+          <h3 className="text-lg font-semibold leading-snug text-slate-950 dark:text-white">{UniversityName}</h3>
           <div className="flex items-center text-slate-500 dark:text-slate-400 text-sm">
             <MapPin className="w-4 h-4 mr-1.5 flex-shrink-0" />
             <span className="truncate">{CityName}</span>

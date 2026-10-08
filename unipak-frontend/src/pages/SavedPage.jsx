@@ -112,7 +112,7 @@ export default function SavedPage() {
                         <Button 
                           className="w-full" 
                           variant="outline"
-                          onClick={() => navigate(`/university/${uni.id}`)}
+                          onClick={() => navigate(`/explore/${uni.id}`)}
                         >
                           View Details
                         </Button>
@@ -172,7 +172,7 @@ export default function SavedPage() {
                       </div>
                       <div className="flex items-end gap-2 mb-2">
                         <span className="text-3xl font-bold text-slate-900 dark:text-white">
-                          {result.aggregate.toFixed(2)}%
+                          {Number.isFinite(result.aggregate) ? `${result.aggregate.toFixed(2)}%` : 'Holistic'}
                         </span>
                         <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400 mb-1">
                           Aggregate

@@ -8,10 +8,11 @@ export default function SearchBar({ value, onChange, placeholder = 'Search...', 
       <Search className="absolute left-4 h-5 w-5 text-slate-400 transition-colors group-focus-within:text-indigo-600" strokeWidth={1.8} />
       <input
         type="text"
+        aria-label={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-12 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-12 text-base text-slate-900 shadow-[var(--shadow-soft)] outline-none transition-[border-color,box-shadow] placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
+        className="h-14 w-full rounded-full border border-slate-200 bg-white pl-12 pr-12 text-base text-slate-900 shadow-[var(--shadow-soft)] outline-none transition-[border-color,box-shadow] placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
       />
       {value && (
         <button

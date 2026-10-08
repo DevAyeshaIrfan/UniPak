@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, Building2, BookOpen, GraduationCap, Clock, Calendar, Banknote, Bed, FileText, Award, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, MapPin, Building2, BookOpen, GraduationCap, Clock, Calendar, Banknote, Bed, FileText, Award, ExternalLink, ChevronDown, ChevronUp, ChevronRight, Share2, Check } from 'lucide-react';
 import { useUniversity, useUniversityPrograms, useUniversityFaculties, useUniversityFees, useUniversityHostels, useUniversityRankings } from '../hooks/useUniversities';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/Tabs';
 import Card from '../components/ui/Card';
@@ -12,7 +12,8 @@ import GradientText from '../components/ui/GradientText';
 import ProgramCard from '../components/shared/ProgramCard';
 import { campusInfo, getCampusMapUrl, universityImages, cn } from '../lib/utils';
 import EmptyState from '../components/ui/EmptyState';
-import MeritTrendChart from '../components/ui/MeritTrendChart';
+import UniversityMeritCutoffs from '../components/shared/UniversityMeritCutoffs';
+import { setPageMetadata } from '../lib/metadata';
 
 export default function UniversityDetailPage() {
   const { universityId } = useParams();
@@ -25,6 +26,7 @@ export default function UniversityDetailPage() {
   const { data: rankingsData, isLoading: rankingsLoading } = useUniversityRankings(universityId);
 
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [shareStatus, setShareStatus] = useState('');
 
   const university = Array.isArray(uniData) ? uniData[0] : uniData?.data ? (Array.isArray(uniData.data) ? uniData.data[0] : uniData.data) : uniData;
   const programs = Array.isArray(programsData) ? programsData : programsData?.data || [];
@@ -56,19 +58,6 @@ export default function UniversityDetailPage() {
     return programs.filter(p => p.MajorCategory === selectedCategory);
   }, [programs, selectedCategory]);
 
-  const meritTrend = useMemo(() => {
-    const grouped = new Map();
-    rankings.forEach((rank) => {
-      const value = Number(rank.ClosingMeritPercent);
-      if (!Number.isFinite(value)) return;
-      const name = rank.ProgramNameSource || 'Program merit';
-      if (!grouped.has(name)) grouped.set(name, []);
-      grouped.get(name).push({ year: String(rank.AdmissionYear), value });
-    });
-    const selected = [...grouped.entries()].sort((a, b) => b[1].length - a[1].length)[0];
-    return selected ? { name: selected[0], data: selected[1].sort((a, b) => Number(a.year) - Number(b.year)).slice(-5) } : null;
-  }, [rankings]);
-
   const getStatusColor = (status) => {
     if (!status) return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300';
     const s = status.toLowerCase();
@@ -79,6 +68,39 @@ export default function UniversityDetailPage() {
   };
 
   const uniImage = universityImages[universityId] || '/images/default_uni.jpg';
+
+  useEffect(() => {
+    if (!university?.UniversityName) return;
+    const description = university.Description
+      || `Review programs, faculties, fees, hostels, merit cutoffs, and admission information for ${university.UniversityName}.`;
+
+    setPageMetadata({
+      title: university.UniversityName,
+      description: description.slice(0, 160),
+      path: `/explore/${universityId}`,
+      image: uniImage,
+    });
+  }, [uniImage, university, universityId]);
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `${university.UniversityName} | UniPak`,
+      text: `Review ${university.UniversityName} admission information on UniPak.`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        setShareStatus('Shared');
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        setShareStatus('Link copied');
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError') setShareStatus('Unable to share');
+    }
+  };
 
   if (uniLoading) {
     return (
@@ -103,45 +125,56 @@ export default function UniversityDetailPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {/* Hero Section */}
-      <div className="relative w-full h-64 md:h-80 pt-16">
-        <div className="absolute inset-0 z-0">
+      <div className="detail-hero">
+        <div className="detail-image">
           <img 
             src={uniImage} 
             alt={university?.UniversityName} 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/70 to-slate-900/30" />
+          
         </div>
         
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-end pb-8">
-          <Link to="/explore" className="inline-flex items-center text-slate-300 hover:text-white mb-4 w-fit transition-colors">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Universities
-          </Link>
+        <div className="relative">
+          <nav aria-label="Breadcrumb" className="mb-7 flex min-w-0 items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <Link to="/explore" className="shrink-0 transition-colors hover:text-slate-950 dark:hover:text-white">Explore Universities</Link>
+            <ChevronRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span className="truncate text-slate-600 dark:text-slate-400" aria-current="page">{university?.UniversityName}</span>
+          </nav>
           
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="detail-title font-semibold text-slate-950 dark:text-white">
             {university?.UniversityName}
           </h1>
           
-          <div className="flex flex-wrap items-center gap-4 text-sm font-medium">
-            <div className="flex items-center text-slate-200">
+          <div className="detail-stats items-center text-sm font-medium">
+            <div className="flex items-center text-slate-600 dark:text-slate-300">
               <MapPin className="w-4 h-4 mr-1.5" />
               {university?.CityName || 'N/A'}
             </div>
-            <div className="flex items-center text-slate-200">
+            <div className="flex items-center text-slate-600 dark:text-slate-300">
               <Building2 className="w-4 h-4 mr-1.5" />
               {university?.Sector || 'N/A'} Sector
             </div>
-            <div className="flex items-center text-slate-200">
+            <div className="flex items-center text-slate-600 dark:text-slate-300">
               <BookOpen className="w-4 h-4 mr-1.5" />
               {programs.length} Programs
             </div>
+            <button
+              type="button"
+              onClick={handleShare}
+              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-4 py-2 text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+              aria-label={`Share ${university?.UniversityName}`}
+            >
+              {shareStatus === 'Shared' || shareStatus === 'Link copied' ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+              {shareStatus || 'Share'}
+            </button>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-6 pt-4 pb-24 sm:px-8 lg:px-12">
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="mb-8 flex overflow-x-auto pb-2 scrollbar-hide">
             <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -172,9 +205,9 @@ export default function UniversityDetailPage() {
                         <Card key={fac.displayName} className="p-5">
                           <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-2">{fac.displayName}</h3>
                           {fac.ApplicationMethod && (
-                            <div className="flex items-center text-sm text-slate-600 dark:text-slate-400 mt-2">
-                              <FileText className="w-4 h-4 mr-2 text-indigo-500" />
-                              Admission method: <span className="font-medium ml-1 text-slate-900 dark:text-slate-200">{fac.ApplicationMethod}</span>
+                            <div className="text-sm leading-6 text-slate-600 dark:text-slate-400 mt-3">
+                              <FileText className="inline h-4 w-4 mr-2 text-indigo-500" />
+                              Admission method: <span className="mt-2 block font-medium text-slate-900 dark:text-slate-200">{fac.ApplicationMethod}</span>
                             </div>
                           )}
                         </Card>
@@ -268,7 +301,7 @@ export default function UniversityDetailPage() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                        <th className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-200">Faculty / Department</th>
+                        <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Faculty / Department</th>
                         <th className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-200">Duration</th>
                         <th className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-200">Semesters</th>
                         <th className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-200">Semester Fee</th>
@@ -331,42 +364,7 @@ export default function UniversityDetailPage() {
             {rankingsLoading ? (
               <Skeleton className="h-64 w-full rounded-xl" />
             ) : rankings.length > 0 ? (
-              <div className="bg-slate-50 dark:bg-slate-900 rounded-lg shadow-sm border border-slate-300 dark:border-slate-800 overflow-hidden max-w-4xl mx-auto">
-                <div className="p-6 bg-indigo-50 dark:bg-indigo-900/10 border-b border-slate-200 dark:border-slate-700">
-                  <h3 className="text-lg font-semibold text-indigo-900 dark:text-indigo-200 flex items-center">
-                    <Award className="w-5 h-5 mr-2" />
-                    Historical Merit Cutoffs
-                  </h3>
-                </div>
-                {meritTrend?.data?.length > 1 && (
-                  <div className="border-b border-slate-300 p-6 dark:border-slate-800">
-                    <div className="mb-2 flex items-end justify-between gap-4"><div><p className="font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-indigo-500">3–5 year program trace</p><h4 className="mt-1 font-semibold">{meritTrend.name}</h4></div><span className="font-mono text-xs text-slate-500">Closing merit %</span></div>
-                    <MeritTrendChart data={meritTrend.data} height={240} />
-                  </div>
-                )}
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                        <th className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-200">Program</th>
-                        <th className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-200">Year</th>
-                        <th className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-200">Closing Merit</th>
-                        <th className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-200">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                      {rankings.map((rank, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
-                          <td className="px-6 py-4 text-slate-900 dark:text-slate-200 font-medium">{rank.ProgramNameSource}</td>
-                          <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{rank.AdmissionYear}</td>
-                          <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{rank.ClosingMeritPercent != null ? `${rank.ClosingMeritPercent}%` : 'Not published'}</td>
-                          <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{rank.MeritStatus}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              <UniversityMeritCutoffs key={universityId} rankings={rankings} />
             ) : (
               <EmptyState title="No ranking data" description="Historical statistics and rankings are not available yet." />
             )}

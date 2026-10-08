@@ -1,9 +1,42 @@
 import React, { createContext, useState, useEffect } from 'react';
 
+const SAVED_UNIVERSITIES_KEY = 'unipak-saved-universities';
+const SAVED_RESULTS_KEY = 'unipak-saved-results';
+
+function isSavedItem(item) {
+  return item !== null && typeof item === 'object' && item.id !== undefined && item.id !== null;
+}
+
+function readSavedItems(key) {
+  try {
+    const storedValue = localStorage.getItem(key);
+    if (!storedValue) return [];
+
+    const parsedValue = JSON.parse(storedValue);
+    return Array.isArray(parsedValue) ? parsedValue.filter(isSavedItem) : [];
+  } catch (error) {
+    console.error(`Failed to read ${key}`, error);
+    return [];
+  }
+}
+
+function writeSavedItems(key, items) {
+  try {
+    localStorage.setItem(key, JSON.stringify(items));
+  } catch (error) {
+    console.error(`Failed to save ${key}`, error);
+  }
+}
+
+function hasMatchingId(item, id) {
+  return String(item.id) === String(id);
+}
+
 export const SavedContext = createContext({
   savedUniversities: [],
   savedResults: [],
   toggleSaveUniversity: () => {},
+  removeUniversity: () => {},
   saveResult: () => {},
   removeResult: () => {},
   clearAll: () => {},
@@ -11,51 +44,42 @@ export const SavedContext = createContext({
 });
 
 export function SavedProvider({ children }) {
-  const [savedUniversities, setSavedUniversities] = useState(() => {
-    try {
-      const item = localStorage.getItem('unipak-saved-universities');
-      return item ? JSON.parse(item) : [];
-    } catch (error) {
-      console.error('Failed to parse saved universities', error);
-      return [];
-    }
-  });
-
-  const [savedResults, setSavedResults] = useState(() => {
-    try {
-      const item = localStorage.getItem('unipak-saved-results');
-      return item ? JSON.parse(item) : [];
-    } catch (error) {
-      console.error('Failed to parse saved results', error);
-      return [];
-    }
-  });
+  const [savedUniversities, setSavedUniversities] = useState(() => readSavedItems(SAVED_UNIVERSITIES_KEY));
+  const [savedResults, setSavedResults] = useState(() => readSavedItems(SAVED_RESULTS_KEY));
 
   useEffect(() => {
-    localStorage.setItem('unipak-saved-universities', JSON.stringify(savedUniversities));
+    writeSavedItems(SAVED_UNIVERSITIES_KEY, savedUniversities);
   }, [savedUniversities]);
 
   useEffect(() => {
-    localStorage.setItem('unipak-saved-results', JSON.stringify(savedResults));
+    writeSavedItems(SAVED_RESULTS_KEY, savedResults);
   }, [savedResults]);
 
   const toggleSaveUniversity = (uni) => {
+    if (!isSavedItem(uni)) return;
+
     setSavedUniversities((prev) => {
-      const exists = prev.find((u) => u.id === uni.id);
+      const exists = prev.some((item) => hasMatchingId(item, uni.id));
       if (exists) {
-        return prev.filter((u) => u.id !== uni.id);
+        return prev.filter((item) => !hasMatchingId(item, uni.id));
       }
       return [...prev, uni];
     });
   };
 
+  const removeUniversity = (id) => {
+    setSavedUniversities((prev) => prev.filter((item) => !hasMatchingId(item, id)));
+  };
+
   const isUniversitySaved = (id) => {
-    return savedUniversities.some((u) => u.id === id);
+    return savedUniversities.some((item) => hasMatchingId(item, id));
   };
 
   const saveResult = (result) => {
+    if (!isSavedItem(result)) return;
+
     setSavedResults((prev) => {
-      const exists = prev.findIndex((r) => r.id === result.id);
+      const exists = prev.findIndex((item) => hasMatchingId(item, result.id));
       if (exists >= 0) {
         const updated = [...prev];
         updated[exists] = result;
@@ -66,7 +90,7 @@ export function SavedProvider({ children }) {
   };
 
   const removeResult = (id) => {
-    setSavedResults((prev) => prev.filter((r) => r.id !== id));
+    setSavedResults((prev) => prev.filter((item) => !hasMatchingId(item, id)));
   };
 
   const clearAll = () => {
@@ -80,6 +104,7 @@ export function SavedProvider({ children }) {
         savedUniversities,
         savedResults,
         toggleSaveUniversity,
+        removeUniversity,
         saveResult,
         removeResult,
         clearAll,
