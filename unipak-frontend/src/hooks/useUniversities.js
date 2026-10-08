@@ -8,13 +8,6 @@ export const useUniversities = (filters = {}) => {
   });
 };
 
-export const useUniversitiesDropdown = () => {
-  return useQuery({
-    queryKey: ['universities', 'dropdown'],
-    queryFn: api.getUniversitiesDropdown,
-  });
-};
-
 export const useCities = () => {
   return useQuery({
     queryKey: ['cities'],
@@ -67,19 +60,5 @@ export const useUniversityRankings = (id) => {
     queryKey: ['university', id, 'rankings'],
     queryFn: () => api.getUniversityRankings(id),
     enabled: !!id,
-  });
-};
-
-export const useSearchPrograms = (params) => {
-  return useQuery({
-    queryKey: ['programs', 'search', params],
-    queryFn: () => api.searchPrograms(params),
-  });
-};
-
-export const useCategories = () => {
-  return useQuery({
-    queryKey: ['categories'],
-    queryFn: api.getCategories,
   });
 };

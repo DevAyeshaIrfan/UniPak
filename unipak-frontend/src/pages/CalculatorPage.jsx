@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useContext } from 'react';
+import { useState, useMemo, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Calculator, GraduationCap, BookOpen, ChevronRight, ChevronLeft, 
@@ -15,11 +15,10 @@ import Input from '../components/ui/Input';
 import Badge from '../components/ui/Badge';
 import GradientText from '../components/ui/GradientText';
 import StepIndicator from '../components/ui/StepIndicator';
-import ChanceIndicator from '../components/ui/ChanceIndicator';
 import Skeleton from '../components/ui/Skeleton';
 import EmptyState from '../components/ui/EmptyState';
 import LedgerLine from '../components/ui/LedgerLine';
-import { cn, universityImages, getChanceLabel } from '../lib/utils';
+import { cn, universityImages } from '../lib/utils';
 import { SavedContext } from '../store/SavedContext';
 
 const STEPS = [

@@ -60,22 +60,9 @@ async function query(sqlQuery, params = []) {
     return request.query(processedSql);
 }
 
-async function testConnection() {
-    try {
-        const pool = await getPool();
-        const result = await pool.request().query('SELECT 1 as result');
-        console.log('Connection test successful:', result.recordset);
-        return true;
-    } catch (error) {
-        console.error('Connection test failed:', error);
-        return false;
-    }
-}
-
 module.exports = {
     connectDB,
     getPool,
     query,
-    testConnection,
     sql
 };

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Trash2, Calculator, BarChart3, GraduationCap, BookOpen } from 'lucide-react';
+import { Heart, Trash2, Calculator, GraduationCap, BookOpen } from 'lucide-react';
 import { SavedContext } from '../store/SavedContext';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';

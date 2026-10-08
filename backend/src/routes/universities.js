@@ -13,11 +13,8 @@ const {
     getAggregateFormula, 
     getAdmissionTestTypes,
     getMeritCutoffs,
-    getMeritCutoffsByProgram,
     getAllMeritCutoffs,
-    getAvgCutoffForUniversity,
     parseAggregateFormula,
-    getFacultyById,
     getAllUniversitiesForDropdown
 } = require('../services/universityService');
 const { query } = require('../config/database');

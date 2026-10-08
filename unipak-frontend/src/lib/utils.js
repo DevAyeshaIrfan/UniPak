@@ -5,27 +5,11 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-export function formatCurrency(amount) {
-  if (amount === null || amount === undefined) return 'N/A';
-  return new Intl.NumberFormat('en-PK', {
-    style: 'currency',
-    currency: 'PKR',
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
 export function getChanceLabel(percent) {
   if (percent >= 85) return { label: 'Excellent', color: 'text-emerald-600 dark:text-emerald-400' };
   if (percent >= 70) return { label: 'Good', color: 'text-blue-600 dark:text-blue-400' };
   if (percent >= 50) return { label: 'Fair', color: 'text-yellow-600 dark:text-yellow-400' };
   return { label: 'Low', color: 'text-red-600 dark:text-red-400' };
-}
-
-export function getChanceColor(percent) {
-  if (percent >= 85) return 'bg-emerald-500';
-  if (percent >= 70) return 'bg-blue-500';
-  if (percent >= 50) return 'bg-yellow-500';
-  return 'bg-red-500';
 }
 
 export function getHostelBadge(status) {
@@ -37,16 +21,6 @@ export function getHostelBadge(status) {
     return { label: 'Limited', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400', icon: 'alert' };
   }
   return { label: 'Not Available', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400', icon: 'x' };
-}
-
-export function debounce(fn, delay) {
-  let timeoutId;
-  return function (...args) {
-    if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      fn.apply(this, args);
-    }, delay);
-  };
 }
 
 export const universityImages = {

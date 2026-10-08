@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Settings, Sun, Moon, Monitor, Trash2, Info, AlertTriangle } from 'lucide-react';
+import React from 'react';
+import { Settings, Sun, Moon, Monitor, Trash2, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';

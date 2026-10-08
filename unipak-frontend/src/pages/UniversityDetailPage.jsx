@@ -1,14 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, Building2, BookOpen, GraduationCap, Clock, Calendar, Banknote, Bed, FileText, Award, ExternalLink, ChevronDown, ChevronUp, ChevronRight, Share2, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, Building2, BookOpen, Bed, FileText, Award, ExternalLink, ChevronRight, Share2, Check } from 'lucide-react';
 import { useUniversity, useUniversityPrograms, useUniversityFaculties, useUniversityFees, useUniversityHostels, useUniversityRankings } from '../hooks/useUniversities';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/Tabs';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
-import Button from '../components/ui/Button';
 import Skeleton from '../components/ui/Skeleton';
-import GradientText from '../components/ui/GradientText';
 import ProgramCard from '../components/shared/ProgramCard';
 import { campusInfo, getCampusMapUrl, universityImages, cn } from '../lib/utils';
 import EmptyState from '../components/ui/EmptyState';
