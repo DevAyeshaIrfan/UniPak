@@ -1,4 +1,4 @@
-const TEST_PATTERN = /\b(?:NTS\s*[/ -]?\s*NAT|NAT\s+NTS|NAT|NTS|NU|SAT|ACT|NET|ECAT|MDCAT|USAT|HAT|LCAT|NED(?:\s+Entry\s+Test)?)\b/gi;
+const TEST_PATTERN = /\b(?:NTS\s*(?:[/-]\s*)?NAT|NAT\s+NTS|NAT|NTS|NU|SAT|ACT|NET|ECAT|MDCAT|USAT|HAT|LCAT|NED(?:\s+Entry\s+Test)?)\b/gi;
 
 function testLabel(value) {
   const name = value.toUpperCase().replace(/\s+/g, ' ');
@@ -28,7 +28,7 @@ export function expandMeritCutoffs(records) {
     const values = new Map();
     const unavailableTests = new Set();
     String(row.Notes || '').split(/[|;]/).forEach((part) => {
-      const match = part.trim().match(/^(NTS\s*[/ -]?\s*NAT|NAT\s+NTS|NAT|NTS|NU|SAT|ACT|NET|ECAT|MDCAT|USAT|HAT|LCAT|NED(?:\s+Entry\s+Test)?)\b\s*(?:column\s+value\s+)?[:=-]?\s*(\d+(?:\.\d+)?|n\/a)(?:%|\b)/i);
+      const match = part.trim().match(/^(NTS\s*(?:[/-]\s*)?NAT|NAT\s+NTS|NAT|NTS|NU|SAT|ACT|NET|ECAT|MDCAT|USAT|HAT|LCAT|NED(?:\s+Entry\s+Test)?)\b\s*(?:column\s+value\s+)?(?:[:=-]\s*)?(\d+(?:\.\d+)?|n\/a)(?:%|\b)/i);
       if (match) {
         const label = testLabel(match[1]);
         values.set(label, numericMerit(match[2]));

@@ -60,7 +60,7 @@ export default function SupportPage() {
     event.preventDefault();
     const nextErrors = {};
     if (!form.name.trim()) nextErrors.name = 'Enter your name';
-    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) nextErrors.email = 'Enter a valid email address';
+    if (!/^\S[^@\s]*@\S[^.\s]*\.\S+$/.test(form.email.trim())) nextErrors.email = 'Enter a valid email address';
     if (!form.subject.trim()) nextErrors.subject = 'Add a short subject';
     if (form.message.trim().length < 10) nextErrors.message = 'Enter at least 10 characters';
 

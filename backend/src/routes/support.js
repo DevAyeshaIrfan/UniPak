@@ -6,7 +6,7 @@ const { createSubmissionLimiter } = require('../middleware/submissionRateLimit')
 
 const router = express.Router();
 const VALID_REQUEST_TYPES = new Set(['contact', 'bug', 'feature']);
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@][^\s@.]*\.[^\s@]+$/;
 
 function cleanText(value, maximumLength) {
     return typeof value === 'string' ? value.trim().slice(0, maximumLength) : '';
@@ -75,7 +75,7 @@ router.post('/', createSubmissionLimiter('SUPPORT', 120), async (req, res) => {
                 email: { sent: true, status: 'sent' }
             });
         } catch (error) {
-            console.error(`Support email failed for ${referenceCode}:`, error.message);
+            console.error(`Support email failed for ${referenceCode}:`);
             await supportService.markEmailFailed(saved.SupportRequestID, error.message);
             return res.status(201).json({
                 success: true,
