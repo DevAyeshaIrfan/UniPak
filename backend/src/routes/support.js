@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const express = require('express');
 const emailService = require('../services/emailService');
 const supportService = require('../services/supportService');
+const { createSubmissionLimiter } = require('../middleware/submissionRateLimit');
 
 const router = express.Router();
 const VALID_REQUEST_TYPES = new Set(['contact', 'bug', 'feature']);
@@ -24,7 +25,7 @@ router.get('/', (req, res) => {
     });
 });
 
-router.post('/', async (req, res) => {
+router.post('/', createSubmissionLimiter('SUPPORT', 120), async (req, res) => {
     const requestType = cleanText(req.body?.requestType, 20).toLowerCase();
     const name = cleanText(req.body?.name, 120);
     const email = cleanText(req.body?.email, 254).toLowerCase();

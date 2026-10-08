@@ -21,9 +21,10 @@ const {
     getAllUniversitiesForDropdown
 } = require('../services/universityService');
 const { query } = require('../config/database');
+const { validateQuery } = require('../middleware/validation');
 
 // GET /api/universities
-router.get('/', async (req, res) => {
+router.get('/', validateQuery({ city: 'text', sector: 'text', search: 'text' }), async (req, res) => {
     try {
         const filters = {
             city: req.query.city,
@@ -83,7 +84,7 @@ router.get('/admission-tests', async (req, res) => {
 });
 
 // GET /api/universities/test-breakdowns
-router.get('/test-breakdowns', async (req, res) => {
+router.get('/test-breakdowns', validateQuery({ universityId: 'id', facultyId: 'id', search: 'text' }), async (req, res) => {
     try {
         const tests = await require('../services/universityService').getAllAdmissionTests({
             universityId: req.query.universityId ? parseInt(req.query.universityId, 10) : undefined,
@@ -98,7 +99,7 @@ router.get('/test-breakdowns', async (req, res) => {
 });
 
 // GET /api/universities/programs/search
-router.get('/programs/search', async (req, res) => {
+router.get('/programs/search', validateQuery({ search: 'text', category: 'text', city: 'text', sector: 'text', hostel: 'text', universityId: 'id', limit: 'id', offset: 'offset' }), async (req, res) => {
     try {
         const filters = {
             search: req.query.search,
@@ -130,7 +131,7 @@ router.get('/programs/categories', async (req, res) => {
 });
 
 // GET /api/universities/merit-cutoffs
-router.get('/merit-cutoffs', async (req, res) => {
+router.get('/merit-cutoffs', validateQuery({ universityId: 'id', city: 'text', year: 'year', program: 'text' }), async (req, res) => {
     try {
         const filters = {
             universityId: req.query.universityId ? parseInt(req.query.universityId) : undefined,
@@ -228,7 +229,7 @@ router.get('/:id/hostels', async (req, res) => {
 });
 
 // GET /api/universities/:id/merit-cutoffs
-router.get('/:id/merit-cutoffs', async (req, res) => {
+router.get('/:id/merit-cutoffs', validateQuery({ year: 'year' }), async (req, res) => {
     try {
         const cutoffs = await getMeritCutoffs(req.params.id);
         let filtered = cutoffs;

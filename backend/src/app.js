@@ -5,7 +5,8 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map(origin => origin.trim()).filter(Boolean);
+app.use(cors({ origin: !allowedOrigins.length || allowedOrigins.includes('*') ? '*' : allowedOrigins }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

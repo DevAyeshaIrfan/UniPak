@@ -1,5 +1,6 @@
 const express = require('express');
 const https = require('https');
+const { createSubmissionLimiter } = require('../middleware/submissionRateLimit');
 
 const router = express.Router();
 
@@ -73,7 +74,7 @@ router.get('/', (req, res) => {
     });
 });
 
-router.post('/', async (req, res) => {
+router.post('/', createSubmissionLimiter('CHAT', 600), async (req, res) => {
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
         return res.status(503).json({
