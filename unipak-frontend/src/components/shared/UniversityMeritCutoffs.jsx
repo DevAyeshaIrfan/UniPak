@@ -9,7 +9,11 @@ export default function UniversityMeritCutoffs({ rankings }) {
   const rows = useMemo(() => expandMeritCutoffs(rankings), [rankings]);
   const [selectedTest, setSelectedTest] = useState('All');
   const [selectedProgram, setSelectedProgram] = useState('');
-  const tests = [...new Set(rows.map(row => row.testLabel))].sort();
+  const tests = [...new Set(rows.map(row => row.testLabel))].sort((a, b) => {
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
+  });
   const activeTest = tests.includes(selectedTest) ? selectedTest : 'All';
   const filteredRows = activeTest === 'All' ? rows : rows.filter(row => row.testLabel === activeTest);
   const programs = [...new Map(rows.map(row => [row.programKey, row.ProgramNameSource || row.ProgramName])).entries()]

@@ -164,7 +164,7 @@ test('provider text containing line breaks cannot forge a support log line', asy
     const log = calls.logs[0].join(' ');
     assert.equal(log, 'Support email failed for UP-2N9C-123456:');
     assert.equal(log.includes('FAKE SUCCESS'), false);
-    assert.equal(/[\r\n\u2028\u2029\u001b]/.test(log), false);
+    assert.ok(['\r', '\n', '\u2028', '\u2029', '\u001b'].every(char => !log.includes(char)));
 });
 
 test('Number.parseFloat and the global function retain all conversion results and errors', () => {

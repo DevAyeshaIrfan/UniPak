@@ -28,7 +28,7 @@ export function expandMeritCutoffs(records) {
     const values = new Map();
     const unavailableTests = new Set();
     String(row.Notes || '').split(/[|;]/).forEach((part) => {
-      const match = part.trim().match(/^(NTS\s*(?:[/-]\s*)?NAT|NAT\s+NTS|NAT|NTS|NU|SAT|ACT|NET|ECAT|MDCAT|USAT|HAT|LCAT|NED(?:\s+Entry\s+Test)?)\b\s*(?:column\s+value\s+)?(?:[:=-]\s*)?(\d+(?:\.\d+)?|n\/a)(?:%|\b)/i);
+      const match = /^(NTS\s*(?:[/-]\s*)?NAT|NAT\s+NTS|NAT|NTS|NU|SAT|ACT|NET|ECAT|MDCAT|USAT|HAT|LCAT|NED(?:\s+Entry\s+Test)?)\b\s*(?:column\s+value\s+)?(?:[:=-]\s*)?(\d+(?:\.\d+)?|n\/a)(?:%|\b)/i.exec(part.trim());
       if (match) {
         const label = testLabel(match[1]);
         values.set(label, numericMerit(match[2]));
@@ -71,7 +71,11 @@ export function expandMeritCutoffs(records) {
 
 export function buildMeritTrend(rows, programKey) {
   const candidates = rows.filter(row => row.programKey === programKey && numericMerit(row.ClosingMeritPercent) != null);
-  const labels = [...new Set(candidates.map(row => row.seriesLabel))].sort();
+  const labels = [...new Set(candidates.map(row => row.seriesLabel))].sort((a, b) => {
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
+  });
   const series = labels.map((name, i) => ({ key: `merit${i}`, name }));
   const byYear = new Map();
   // A year/category may have several lists. Plot its most recently recorded numeric list.

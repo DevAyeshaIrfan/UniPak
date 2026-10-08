@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 const express = require('express');
 const emailService = require('../services/emailService');
 const supportService = require('../services/supportService');

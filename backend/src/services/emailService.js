@@ -1,4 +1,4 @@
-const https = require('https');
+const https = require('node:https');
 
 const REQUEST_LABELS = {
     contact: 'Contact request',

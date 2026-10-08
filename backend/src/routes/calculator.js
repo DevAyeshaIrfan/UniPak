@@ -7,7 +7,7 @@ const MAX_FACULTY_SELECTIONS = 256;
 
 function isNumericValue(value) {
     return (typeof value === 'number' || (typeof value === 'string' && value.trim() !== '')) &&
-        Number.isFinite(Number(value)) && Number(value) === parseFloat(value);
+        Number.isFinite(Number(value)) && Number(value) === Number.parseFloat(value);
 }
 
 function isValidMarkPair(marks, total) {
@@ -230,7 +230,7 @@ router.post('/calculate', async (req, res) => {
             matricTotal: parseFloat(matricTotal),
             intermediateMarks: parseFloat(intermediateMarks),
             intermediateTotal: parseFloat(intermediateTotal),
-            entryTestScore: entryTestScore == null ? null : parseFloat(entryTestScore),
+            entryTestScore: entryTestScore == null ? null : Number.parseFloat(entryTestScore),
             entryTestTotal: entryTestTotal ? parseFloat(entryTestTotal) : null
         };
 
@@ -357,7 +357,7 @@ router.post('/compare', async (req, res) => {
             matricTotal: parseFloat(matricTotal),
             intermediateMarks: parseFloat(intermediateMarks),
             intermediateTotal: parseFloat(intermediateTotal),
-            entryTestScore: entryTestScore == null ? null : parseFloat(entryTestScore),
+            entryTestScore: entryTestScore == null ? null : Number.parseFloat(entryTestScore),
             entryTestTotal: entryTestTotal ? parseFloat(entryTestTotal) : null
         };
 
