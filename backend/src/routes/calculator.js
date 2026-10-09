@@ -2,9 +2,16 @@ const express = require('express');
 const router = express.Router();
 const { calculateAggregate, predictChance, generateRecommendation } = require('../services/calculatorService');
 const universityService = require('../services/universityService');
+const { isValidId } = require('../middleware/validation');
+const MAX_FACULTY_SELECTIONS = 256;
+
+function isNumericValue(value) {
+    return (typeof value === 'number' || (typeof value === 'string' && value.trim() !== '')) &&
+        Number.isFinite(Number(value)) && Number(value) === Number.parseFloat(value);
+}
 
 function isValidMarkPair(marks, total) {
-    return Number.isFinite(Number(marks)) && Number.isFinite(Number(total)) &&
+    return isNumericValue(marks) && isNumericValue(total) &&
         Number(marks) >= 0 && Number(total) > 0 && Number(marks) <= Number(total);
 }
 
@@ -31,12 +38,12 @@ function chanceFromMargin(margin) {
 }
 
 async function buildProgramPrediction(programId, profile = {}) {
-    if (!programId) {
+    if (!isValidId(programId)) {
         const error = new Error('Select a program for both universities');
         error.status = 400;
         throw error;
     }
-    if (!hasValidAcademicMarks(profile)) {
+    if (!profile || typeof profile !== 'object' || Array.isArray(profile) || !hasValidAcademicMarks(profile)) {
         const error = new Error('Provide valid Matric and Intermediate marks and totals for both programs');
         error.status = 400;
         throw error;
@@ -57,9 +64,16 @@ async function buildProgramPrediction(programId, profile = {}) {
     let entryTestTotal = null;
 
     if (requiresTest) {
-        selectedTest = await universityService.getAdmissionTestById(profile.admissionTestId, program.FacultyID);
+        selectedTest = isValidId(profile.admissionTestId)
+            ? await universityService.getAdmissionTestById(profile.admissionTestId, program.FacultyID)
+            : null;
         if (!selectedTest) {
             const error = new Error(`Select an accepted entry test for ${program.ProgramName}`);
+            error.status = 400;
+            throw error;
+        }
+        if (!isValidMarkPair(profile.entryTestScore, selectedTest.TotalMarks == null ? profile.entryTestTotal : selectedTest.TotalMarks)) {
+            const error = new Error(`Provide valid ${selectedTest.TestName} marks for ${program.ProgramName}`);
             error.status = 400;
             throw error;
         }
@@ -67,11 +81,6 @@ async function buildProgramPrediction(programId, profile = {}) {
         entryTestTotal = selectedTest.TotalMarks == null
             ? Number(profile.entryTestTotal)
             : Number(selectedTest.TotalMarks);
-        if (!isValidMarkPair(entryTestScore, entryTestTotal)) {
-            const error = new Error(`Provide valid ${selectedTest.TestName} marks for ${program.ProgramName}`);
-            error.status = 400;
-            throw error;
-        }
     }
 
     const result = await calculateAggregate(program.FacultyID, {
@@ -190,6 +199,9 @@ router.get('/faculties/:universityId', async (req, res) => {
 // POST /api/calculator/calculate
 router.post('/calculate', async (req, res) => {
     try {
+        if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+            return res.status(400).json({ success: false, error: 'Provide valid calculator inputs' });
+        }
         const { facultyIds, matricMarks, matricTotal, intermediateMarks, intermediateTotal, entryTestScore, entryTestTotal, entryTestSelections = [] } = req.body;
 
         // Validate
@@ -200,12 +212,25 @@ router.post('/calculate', async (req, res) => {
             return res.status(400).json({ success: false, error: 'At least one faculty must be selected' });
         }
 
+        if (facultyIds.length > MAX_FACULTY_SELECTIONS) {
+            return res.status(400).json({ success: false, error: `Select at most ${MAX_FACULTY_SELECTIONS} faculties per request` });
+        }
+        if (!facultyIds.every(isValidId)) {
+            return res.status(400).json({ success: false, error: 'Provide valid faculty IDs' });
+        }
+        if (!Array.isArray(entryTestSelections) || entryTestSelections.length > MAX_FACULTY_SELECTIONS ||
+            !entryTestSelections.every(item => item && typeof item === 'object' && !Array.isArray(item) &&
+                isValidId(item.facultyId) && isValidId(item.admissionTestId) && isNumericValue(item.score) &&
+                (item.total == null || isValidMarkPair(item.score, item.total)))) {
+            return res.status(400).json({ success: false, error: 'Provide valid entry-test selections' });
+        }
+
         const baseStudentData = {
             matricMarks: parseFloat(matricMarks),
             matricTotal: parseFloat(matricTotal),
             intermediateMarks: parseFloat(intermediateMarks),
             intermediateTotal: parseFloat(intermediateTotal),
-            entryTestScore: entryTestScore ? parseFloat(entryTestScore) : null,
+            entryTestScore: entryTestScore == null ? null : Number.parseFloat(entryTestScore),
             entryTestTotal: entryTestTotal ? parseFloat(entryTestTotal) : null
         };
 
@@ -214,7 +239,7 @@ router.post('/calculate', async (req, res) => {
         }
 
         const results = [];
-        for (const facultyId of facultyIds) {
+        for (const facultyId of new Set(facultyIds.map(Number))) {
             const faculty = await universityService.getFacultyById(facultyId);
             if (!faculty) continue;
 
@@ -286,8 +311,14 @@ router.post('/calculate', async (req, res) => {
 // POST /api/calculator/compare
 router.post('/compare', async (req, res) => {
     try {
+        if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+            return res.status(400).json({ success: false, error: 'Provide valid calculator inputs' });
+        }
         const { programId1, programId2, profile1, profile2 } = req.body;
         if (programId1 || programId2 || profile1 || profile2) {
+            if (!isValidId(programId1) || !isValidId(programId2)) {
+                return res.status(400).json({ success: false, error: 'Select a program for both universities' });
+            }
             if (Number(programId1) === Number(programId2)) {
                 return res.status(400).json({ success: false, error: 'Choose two different programs to compare' });
             }
@@ -314,7 +345,7 @@ router.post('/compare', async (req, res) => {
         if (!hasValidAcademicMarks({ matricMarks, matricTotal, intermediateMarks, intermediateTotal })) {
             return res.status(400).json({ success: false, error: 'Provide valid Matric and Intermediate marks and totals' });
         }
-        if (!facultyId1 || !facultyId2) {
+        if (!isValidId(facultyId1) || !isValidId(facultyId2)) {
             return res.status(400).json({ success: false, error: 'Two faculties required' });
         }
         if (Number(facultyId1) === Number(facultyId2)) {
@@ -326,7 +357,7 @@ router.post('/compare', async (req, res) => {
             matricTotal: parseFloat(matricTotal),
             intermediateMarks: parseFloat(intermediateMarks),
             intermediateTotal: parseFloat(intermediateTotal),
-            entryTestScore: entryTestScore ? parseFloat(entryTestScore) : null,
+            entryTestScore: entryTestScore == null ? null : Number.parseFloat(entryTestScore),
             entryTestTotal: entryTestTotal ? parseFloat(entryTestTotal) : null
         };
 

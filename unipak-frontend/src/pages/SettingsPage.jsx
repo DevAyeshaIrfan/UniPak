@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Settings, Sun, Moon, Monitor, Trash2, Info, AlertTriangle } from 'lucide-react';
+import React from 'react';
+import { Settings, Sun, Moon, Monitor, Trash2, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import GradientText from '../components/ui/GradientText';
 import clsx from 'clsx';
+import { Link } from 'react-router-dom';
 
 export default function SettingsPage() {
   // Graceful fallback if useTheme is not fully setup yet
@@ -144,13 +144,13 @@ export default function SettingsPage() {
               </p>
               
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm font-medium">
-                <a href="#privacy" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                <Link to="/privacy" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                   Privacy Policy
-                </a>
+                </Link>
                 <span className="text-slate-300 dark:text-slate-700">•</span>
-                <a href="#terms" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                  Terms of Service
-                </a>
+                <Link to="/faq" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                  FAQ
+                </Link>
               </div>
             </div>
           </Card>

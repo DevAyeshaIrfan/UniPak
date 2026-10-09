@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Navigate, Routes, Route, useParams } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -12,6 +12,10 @@ const SavedPage = lazy(() => import('./pages/SavedPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const TestBreakdownPage = lazy(() => import('./pages/TestBreakdownPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const FaqPage = lazy(() => import('./pages/FaqPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const SupportPage = lazy(() => import('./pages/SupportPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
 
 function PageLoader() {
   return (
@@ -25,6 +29,11 @@ function PageLoader() {
       </div>
     </div>
   );
+}
+
+function LegacyUniversityRedirect() {
+  const { universityId } = useParams();
+  return <Navigate to={`/explore/${universityId}`} replace />;
 }
 
 export default function App() {
@@ -55,6 +64,7 @@ export default function App() {
             </Suspense>
           }
         />
+        <Route path="university/:universityId" element={<LegacyUniversityRedirect />} />
         <Route
           path="calculator"
           element={
@@ -100,6 +110,38 @@ export default function App() {
           element={
             <Suspense fallback={<PageLoader />}>
               <SettingsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="faq"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <FaqPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="privacy"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <PrivacyPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="support"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <SupportPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="terms"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <TermsPage />
             </Suspense>
           }
         />

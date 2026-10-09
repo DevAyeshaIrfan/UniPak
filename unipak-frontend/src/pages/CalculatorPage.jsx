@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Calculator, GraduationCap, BookOpen, ChevronRight, ChevronLeft, 
@@ -15,11 +15,11 @@ import Input from '../components/ui/Input';
 import Badge from '../components/ui/Badge';
 import GradientText from '../components/ui/GradientText';
 import StepIndicator from '../components/ui/StepIndicator';
-import ChanceIndicator from '../components/ui/ChanceIndicator';
 import Skeleton from '../components/ui/Skeleton';
 import EmptyState from '../components/ui/EmptyState';
 import LedgerLine from '../components/ui/LedgerLine';
-import { cn, universityImages, getChanceLabel } from '../lib/utils';
+import { cn, universityImages } from '../lib/utils';
+import { SavedContext } from '../store/SavedContext';
 
 const STEPS = [
   { id: 1, label: 'University' },
@@ -29,11 +29,13 @@ const STEPS = [
 ];
 
 export default function CalculatorPage() {
+  const { saveResult } = useContext(SavedContext);
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedUniversity, setSelectedUniversity] = useState(null);
   const [selectedFaculties, setSelectedFaculties] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [testEntries, setTestEntries] = useState({});
+  const [hasSavedResults, setHasSavedResults] = useState(false);
   
   const [marks, setMarks] = useState({
     matricMarks: '',
@@ -48,8 +50,7 @@ export default function CalculatorPage() {
   const universities = universitiesResponse?.data || [];
   
   const { data: facultiesResponse, isLoading: isLoadingFaculties } = useCalculatorFaculties(
-    selectedUniversity?.id,
-    { enabled: !!selectedUniversity?.id }
+    selectedUniversity?.id
   );
   const faculties = facultiesResponse?.data || [];
 
@@ -111,6 +112,7 @@ export default function CalculatorPage() {
   };
 
   const handleCalculate = () => {
+    setHasSavedResults(false);
     const payload = {
       facultyIds: selectedFaculties.map(f => f.id),
       matricMarks: Number(marks.matricMarks),
@@ -146,11 +148,36 @@ export default function CalculatorPage() {
     setSelectedUniversity(null);
     setSelectedFaculties([]);
     setTestEntries({});
+    setHasSavedResults(false);
     setMarks({
       matricMarks: '', matricTotal: 1100,
       intermediateMarks: '', intermediateTotal: 1100,
       entryTestScore: '', entryTestTotal: 200
     });
+  };
+
+  const handleSaveResults = () => {
+    const savedAt = new Date().toISOString();
+
+    results.forEach((result) => {
+      const faculty = selectedFaculties.find((item) => item.id === result.facultyId);
+      const universityId = result.universityId ?? selectedUniversity?.id;
+      const facultyId = result.facultyId ?? faculty?.id;
+      const aggregate = Number(result.aggregate);
+
+      saveResult({
+        id: `${universityId}-${facultyId}`,
+        date: savedAt,
+        universityId,
+        universityName: result.universityName || selectedUniversity?.Name,
+        facultyId,
+        facultyName: result.facultyName || faculty?.Name,
+        aggregate: Number.isFinite(aggregate) ? aggregate : null,
+        isHolistic: Boolean(result.isHolistic || faculty?.isHolistic),
+      });
+    });
+
+    setHasSavedResults(true);
   };
 
   const isMarksValid = () => {
@@ -187,6 +214,7 @@ export default function CalculatorPage() {
         </div>
         <Input
           type="text"
+          aria-label="Search universities"
           placeholder="Search universities..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -205,22 +233,25 @@ export default function CalculatorPage() {
           {filteredUniversities.map((uni) => (
             <Card
               key={uni.id}
+              as="button"
+              type="button"
+              aria-pressed={selectedUniversity?.id === uni.id}
               onClick={() => handleSelectUniversity(uni)}
               className={cn(
-                "cursor-pointer transition-all hover:-translate-y-1 hover:shadow-md",
+                "text-left w-full cursor-pointer transition-[border-color,box-shadow] hover:shadow-soft-lg",
                 selectedUniversity?.id === uni.id 
                   ? "ring-2 ring-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10"
                   : "hover:border-indigo-200 dark:hover:border-indigo-800"
               )}
             >
-              <div className="flex items-start p-4 gap-4">
+              <div className="flex items-start gap-3">
                 <img 
                   src={universityImages[uni.id] || '/images/default-uni.jpg'} 
                   alt={uni.Name}
                   className="w-12 h-12 rounded-lg object-cover bg-slate-100 dark:bg-slate-800"
                 />
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-slate-900 dark:text-white truncate">{uni.Name}</h3>
+                  <h3 className="font-semibold text-slate-900 dark:text-white leading-snug">{uni.Name}</h3>
                   <p className="text-sm text-slate-500 dark:text-slate-400">{uni.City}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Badge variant="outline" size="sm">{uni.Sector}</Badge>
@@ -277,9 +308,12 @@ export default function CalculatorPage() {
             return (
               <Card
                 key={faculty.id}
+                as="button"
+                type="button"
+                aria-pressed={isSelected}
                 onClick={() => handleSelectFaculty(faculty)}
                 className={cn(
-                  "cursor-pointer transition-all hover:shadow-md p-5",
+                  "text-left w-full cursor-pointer transition-[border-color,box-shadow] hover:shadow-soft-lg p-5",
                   isSelected 
                     ? "ring-2 ring-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10"
                     : "hover:border-indigo-200 dark:hover:border-indigo-800"
@@ -350,7 +384,7 @@ export default function CalculatorPage() {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      className="space-y-6 max-w-2xl mx-auto"
+      className="space-y-8 max-w-2xl mx-auto"
     >
       <div className="text-center space-y-2 mb-8">
         <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Enter Your Academic Marks</h2>
@@ -395,6 +429,7 @@ export default function CalculatorPage() {
                   type="number"
                   min="0"
                   max={marks.matricTotal}
+                  aria-label="Matriculation obtained marks"
                   value={marks.matricMarks}
                   onChange={e => setMarks({...marks, matricMarks: e.target.value})}
                   placeholder="e.g. 950"
@@ -405,6 +440,7 @@ export default function CalculatorPage() {
                 <Input
                   type="number"
                   min="1"
+                  aria-label="Matriculation total marks"
                   value={marks.matricTotal}
                   onChange={e => setMarks({...marks, matricTotal: e.target.value})}
                 />
@@ -431,6 +467,7 @@ export default function CalculatorPage() {
                   type="number"
                   min="0"
                   max={marks.intermediateTotal}
+                  aria-label="Intermediate obtained marks"
                   value={marks.intermediateMarks}
                   onChange={e => setMarks({...marks, intermediateMarks: e.target.value})}
                   placeholder="e.g. 980"
@@ -441,6 +478,7 @@ export default function CalculatorPage() {
                 <Input
                   type="number"
                   min="1"
+                  aria-label="Intermediate total marks"
                   value={marks.intermediateTotal}
                   onChange={e => setMarks({...marks, intermediateTotal: e.target.value})}
                 />
@@ -467,6 +505,7 @@ export default function CalculatorPage() {
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Accepted Test</label>
               <select
                 className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2.5"
+                aria-label={`${faculty.Name} accepted test`}
                 value={entry.admissionTestId || ''}
                 onChange={event => {
                   const test = faculty.admissionTests.find(item => item.id === Number(event.target.value));
@@ -484,6 +523,7 @@ export default function CalculatorPage() {
                   type="number"
                   min="0"
                   max={entry.total}
+                  aria-label={`${faculty.Name} obtained score`}
                   value={entry.score || ''}
                   onChange={e => updateEntry({ score: e.target.value })}
                   placeholder="e.g. 145"
@@ -494,6 +534,7 @@ export default function CalculatorPage() {
                 <Input
                   type="number"
                   min="1"
+                  aria-label={`${faculty.Name} total score`}
                   value={entry.total || ''}
                   readOnly={selectedTest?.total != null}
                   onChange={e => updateEntry({ total: e.target.value })}
@@ -512,7 +553,7 @@ export default function CalculatorPage() {
 
       {liveAggregatePreview != null && (
         <Card className="border-indigo-400 p-5 dark:border-indigo-700" aria-live="polite">
-          <div className="flex items-end justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div><p className="font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-indigo-500">Live score entry</p><p className="mt-1 text-sm text-slate-500">Updates as you type. The final result still uses the official calculator response.</p></div>
             <div className="ledger-number text-3xl font-semibold text-slate-950 dark:text-slate-100">{liveAggregatePreview.toFixed(2)}%</div>
           </div>
@@ -569,7 +610,7 @@ export default function CalculatorPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
             >
-              <Card className="overflow-hidden">
+              <Card padding="p-0" className="overflow-hidden">
                 <div className="bg-slate-50 dark:bg-slate-800/50 p-6 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div>
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white">
@@ -580,10 +621,10 @@ export default function CalculatorPage() {
                   </div>
                   
                   {!isHolistic && result.aggregate !== undefined && (
-                    <div className="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <div className="result-stat shrink-0">
                       <div className="text-center">
-                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Your Aggregate</p>
-                        <GradientText className="text-3xl font-bold font-mono tracking-tight">
+                        <p className="text-sm !text-inherit font-medium">Your Aggregate</p>
+                        <GradientText className="!text-inherit mt-2 block text-5xl font-semibold tracking-tight">
                           {result.aggregate.toFixed(2)}%
                         </GradientText>
                       </div>
@@ -611,7 +652,7 @@ export default function CalculatorPage() {
                             <Calculator className="h-4 w-4 text-indigo-500" />
                             Calculation Breakdown
                           </h4>
-                          <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+                          <div className="result-breakdown overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
                             <table className="w-full text-sm text-left">
                               <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400">
                                 <tr>
@@ -624,12 +665,12 @@ export default function CalculatorPage() {
                               <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                                 {result.breakdown.map((item, i) => (
                                   <tr key={i} className="bg-white dark:bg-slate-900">
-                                    <td className="px-4 py-3 text-slate-900 dark:text-slate-200">{item.component}</td>
-                                    <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{item.weight}%</td>
-                                    <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
+                                    <td data-label="Component" className="px-4 py-3 text-slate-900 dark:text-slate-200">{item.component}</td>
+                                    <td data-label="Weight" className="px-4 py-3 text-slate-600 dark:text-slate-400">{item.weight}%</td>
+                                    <td data-label="Your Score" className="px-4 py-3 text-slate-600 dark:text-slate-400">
                                       {item.yourScore?.toFixed(1)}%
                                     </td>
-                                    <td className="px-4 py-3 text-right font-medium text-slate-900 dark:text-slate-200">
+                                    <td data-label="Contribution" className="px-4 py-3 text-right font-medium text-slate-900 dark:text-slate-200">
                                       {item.contribution.toFixed(2)}%
                                     </td>
                                   </tr>
@@ -674,18 +715,19 @@ export default function CalculatorPage() {
           Compare Universities
         </Button>
         <Button 
-          leftIcon={<Save className="h-4 w-4" />}
-          onClick={() => alert("Results saved to your dashboard! (Mock)")}
+          leftIcon={hasSavedResults ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
+          onClick={handleSaveResults}
+          disabled={!results.length || hasSavedResults}
           className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700"
         >
-          Save Results
+          {hasSavedResults ? 'Results Saved' : 'Save Results'}
         </Button>
       </div>
     </motion.div>
   );
 
   return (
-    <div className="page-container max-w-5xl">
+    <div className="calculator-page page-container max-w-6xl">
       <div className="mx-auto mb-12 max-w-4xl">
         <div className="mb-10 space-y-4 text-center">
           <Badge variant="primary" className="mb-4">

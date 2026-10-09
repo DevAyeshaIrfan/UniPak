@@ -98,7 +98,3 @@ export const compareUniversities = async (data) => {
     comparison: { university1, university2, recommendation: comparison.recommendation },
   };
 };
-
-export const getResults = async (applicationId) => {
-  return apiClient.get(`/calculator/results/${applicationId}`);
-};

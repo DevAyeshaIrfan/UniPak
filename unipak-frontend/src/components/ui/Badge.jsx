@@ -39,7 +39,7 @@ export default function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-sm font-mono font-semibold uppercase tracking-[0.05em] leading-none',
+        'inline-flex items-center rounded-full font-sans font-medium tracking-normal leading-none',
         variants[variant],
         sizes[size],
         className

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Trash2, Calculator, BarChart3, GraduationCap, BookOpen } from 'lucide-react';
+import { Heart, Trash2, Calculator, GraduationCap, BookOpen } from 'lucide-react';
 import { SavedContext } from '../store/SavedContext';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -10,23 +10,8 @@ import GradientText from '../components/ui/GradientText';
 import { universityImages } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
 
-const useSaved = () => {
-  const context = useContext(SavedContext);
-  if (!context) {
-    // Provide a fallback if context is not yet implemented
-    return {
-      savedUniversities: [],
-      savedResults: [],
-      removeUniversity: () => {},
-      removeResult: () => {},
-      clearAll: () => {},
-    };
-  }
-  return context;
-};
-
 export default function SavedPage() {
-  const { savedUniversities, savedResults, removeUniversity, removeResult, clearAll } = useSaved();
+  const { savedUniversities, savedResults, removeUniversity, removeResult, clearAll } = useContext(SavedContext);
   const navigate = useNavigate();
 
   return (
@@ -112,7 +97,7 @@ export default function SavedPage() {
                         <Button 
                           className="w-full" 
                           variant="outline"
-                          onClick={() => navigate(`/university/${uni.id}`)}
+                          onClick={() => navigate(`/explore/${uni.id}`)}
                         >
                           View Details
                         </Button>
@@ -172,7 +157,7 @@ export default function SavedPage() {
                       </div>
                       <div className="flex items-end gap-2 mb-2">
                         <span className="text-3xl font-bold text-slate-900 dark:text-white">
-                          {result.aggregate.toFixed(2)}%
+                          {Number.isFinite(result.aggregate) ? `${result.aggregate.toFixed(2)}%` : 'Holistic'}
                         </span>
                         <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400 mb-1">
                           Aggregate

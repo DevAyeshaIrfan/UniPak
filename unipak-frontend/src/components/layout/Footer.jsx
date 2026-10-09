@@ -1,20 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { GraduationCap, Mail, ExternalLink } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-slate-200 bg-slate-100/70 dark:border-slate-800 dark:bg-slate-900">
-      <div className="absolute left-0 right-0 top-0 h-0.5 bg-indigo-500" />
+    <footer className="relative overflow-hidden border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+
       
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5 lg:gap-10">
           
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4 inline-flex">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white dark:bg-indigo-500">
-                <GraduationCap className="w-6 h-6" />
-              </div>
               <span className="text-xl font-extrabold tracking-[-0.04em] text-slate-950 dark:text-white">
                 UniPak
               </span>
@@ -23,44 +20,41 @@ export default function Footer() {
               Empowering students in Pakistan to find the right university, calculate aggregates, and predict admission chances with AI.
             </p>
             <div className="flex items-center gap-4">
-              <a href="#" className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-full transition-colors">
-                <ExternalLink className="w-5 h-5" />
+              <a href="https://www.instagram.com/unipak.app/" target="_blank" rel="noopener noreferrer" aria-label="UniPak on Instagram" className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-full transition-colors">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="5" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+                </svg>
               </a>
-              <a href="#" className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-full transition-colors">
-                <ExternalLink className="w-5 h-5" />
-              </a>
-              <a href="#" className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-full transition-colors">
+              <a href="#" aria-label="External resource" className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-full transition-colors">
                 <Mail className="w-5 h-5" />
               </a>
             </div>
           </div>
 
           <div>
-            <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Product</h3>
+            <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Resources</h3>
             <ul className="space-y-3">
-              <li><Link to="/explore" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Explore Universities</Link></li>
-              <li><Link to="/calculator" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Aggregate Calculator</Link></li>
-              <li><Link to="/prediction" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Admission Prediction</Link></li>
-              <li><Link to="/ai" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">AI Assistant</Link></li>
+              <li><a href="#" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Blog</a></li>
+              <li><Link to="/faq" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">FAQ</Link></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Resources</h3>
+            <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Support</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Blog</a></li>
-              <li><a href="#" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">FAQ</a></li>
-              <li><a href="#" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Support Center</a></li>
-              <li><a href="#" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Admission Guides</a></li>
+              <li><Link to="/support?type=contact" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Contact Us</Link></li>
+              <li><Link to="/support?type=bug" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Report a Bug</Link></li>
+              <li><Link to="/support?type=feature" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Request Feature</Link></li>
             </ul>
           </div>
 
           <div>
             <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Legal</h3>
             <ul className="space-y-3">
-              <li><a href="#" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Cookie Policy</a></li>
+              <li><Link to="/privacy" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
 

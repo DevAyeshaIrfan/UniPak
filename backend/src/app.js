@@ -5,7 +5,8 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map(origin => origin.trim()).filter(Boolean);
+app.use(cors({ origin: !allowedOrigins.length || allowedOrigins.includes('*') ? '*' : allowedOrigins }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -14,6 +15,7 @@ app.use('/api/universities', require('./routes/universities'));
 app.use('/api/calculator', require('./routes/calculator'));
 app.use('/api/merit-cutoffs', require('./routes/meritCutoffs'));
 app.use('/api/chat', require('./routes/chat'));
+app.use('/api/support', require('./routes/support'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -29,6 +31,7 @@ app.get('/api', (req, res) => {
             calculator: '/api/calculator',
             meritCutoffs: '/api/merit-cutoffs',
             chat: '/api/chat',
+            support: '/api/support',
             health: '/api/health'
         }
     });

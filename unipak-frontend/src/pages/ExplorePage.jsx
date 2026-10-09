@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Search, SlidersHorizontal, X, MapPin, GraduationCap, BookOpen, Building2 } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 import { useUniversities, useCities } from '../hooks/useUniversities';
 import UniversityCard from '../components/shared/UniversityCard';
 import SearchBar from '../components/shared/SearchBar';
@@ -64,11 +64,12 @@ export default function ExplorePage() {
     <div className="min-h-screen">
       <div className="page-container">
         {/* Header */}
-        <div className="mb-9 text-center">
+        <div className="mb-10 max-w-3xl">
           <h1 className="page-heading mb-3">
-            <GradientText>Explore Universities</GradientText>
+            <span className="text-slate-950 dark:text-white">Explore</span>{' '}
+            <GradientText>Universities</GradientText>
           </h1>
-          <p className="page-copy mx-auto">
+          <p className="page-copy">
             Discover your perfect university from across Pakistan
           </p>
         </div>

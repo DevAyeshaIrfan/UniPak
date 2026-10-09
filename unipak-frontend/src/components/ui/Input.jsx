@@ -42,9 +42,9 @@ const Input = forwardRef(({
             rest.onBlur?.(e);
           }}
           className={cn(
-            'flex h-11 w-full rounded-md border bg-slate-50 px-3.5 py-2 text-sm text-slate-950 shadow-sm outline-none transition-[border-color,box-shadow,background-color]',
+            'flex h-11 w-full rounded-xl border bg-white px-3.5 py-2 text-sm text-slate-950 shadow-sm outline-none transition-[border-color,box-shadow,background-color]',
             'file:border-0 file:bg-transparent file:text-sm file:font-medium',
-            'placeholder:text-gray-400 dark:placeholder:text-gray-500',
+            'placeholder:text-slate-500 dark:placeholder:text-gray-500',
             'dark:bg-slate-900 dark:text-slate-100',
             leftIcon && 'pl-10',
             rightAddon && 'pr-12',
@@ -69,7 +69,7 @@ const Input = forwardRef(({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="pointer-events-none absolute -inset-0.5 -z-10 rounded-md border-2 border-indigo-500/15 dark:border-indigo-500/25"
+              className="pointer-events-none absolute -inset-0.5 -z-10 rounded-xl border-2 border-indigo-500/15 dark:border-indigo-500/25"
             />
           )}
         </AnimatePresence>

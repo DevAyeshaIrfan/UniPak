@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const { validateQuery } = require('../middleware/validation');
 const { getAllMeritCutoffs, getMeritCutoffs, getMeritCutoffsByProgram } = require('../services/universityService');
 
 // GET /api/merit-cutoffs - Get all merit cutoffs with filters
-router.get('/', async (req, res) => {
+router.get('/', validateQuery({ universityId: 'id', city: 'text', year: 'year', program: 'text' }), async (req, res) => {
     try {
         const filters = {
             universityId: req.query.universityId ? parseInt(req.query.universityId) : undefined,

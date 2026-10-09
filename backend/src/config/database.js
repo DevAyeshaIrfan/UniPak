@@ -9,7 +9,7 @@ const config = {
     database: process.env.DB_NAME || 'UniPak',
     options: {
         encrypt: true, // Use this if you're on Windows Azure
-        trustServerCertificate: true, // Change to true for local dev / self-signed certs
+        trustServerCertificate: process.env.DB_VERIFY_CERTIFICATE !== 'true', // Opt in for a verified database certificate
     }
 };
 
@@ -60,22 +60,9 @@ async function query(sqlQuery, params = []) {
     return request.query(processedSql);
 }
 
-async function testConnection() {
-    try {
-        const pool = await getPool();
-        const result = await pool.request().query('SELECT 1 as result');
-        console.log('Connection test successful:', result.recordset);
-        return true;
-    } catch (error) {
-        console.error('Connection test failed:', error);
-        return false;
-    }
-}
-
 module.exports = {
     connectDB,
     getPool,
     query,
-    testConnection,
     sql
 };

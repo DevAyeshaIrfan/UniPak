@@ -1,5 +1,6 @@
 const express = require('express');
 const https = require('https');
+const { createSubmissionLimiter } = require('../middleware/submissionRateLimit');
 
 const router = express.Router();
 
@@ -69,11 +70,11 @@ router.get('/', (req, res) => {
     res.json({
         success: true,
         configured: Boolean(process.env.GROQ_API_KEY),
-        model: process.env.CHAT_MODEL || 'llama-3.1-8b-instant'
+        model: process.env.CHAT_MODEL || 'openai/gpt-oss-20b'
     });
 });
 
-router.post('/', async (req, res) => {
+router.post('/', createSubmissionLimiter('CHAT', 600), async (req, res) => {
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
         return res.status(503).json({
@@ -87,7 +88,7 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ success: false, error: 'Enter a message to continue' });
     }
 
-    const model = process.env.CHAT_MODEL || 'llama-3.1-8b-instant';
+    const model = process.env.CHAT_MODEL || 'openai/gpt-oss-20b';
     try {
         const response = await postJson(
             'https://api.groq.com/openai/v1/chat/completions',
@@ -111,7 +112,7 @@ router.post('/', async (req, res) => {
             if (response.status === 429) {
                 return res.status(429).json({ success: false, error: 'The assistant is busy right now. Please try again shortly.' });
             }
-            if (response.status === 400 || response.status === 401 || response.status === 403) {
+            if (response.status === 400 || response.status === 401 || response.status === 403 || data?.error?.code === 'model_not_found') {
                 return res.status(502).json({ success: false, error: 'The chat service configuration was rejected.' });
             }
             return res.status(502).json({ success: false, error: 'The assistant could not complete this request.' });

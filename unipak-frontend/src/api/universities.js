@@ -4,16 +4,8 @@ export const getUniversities = async (params) => {
   return apiClient.get('/universities', { params });
 };
 
-export const getUniversitiesDropdown = async () => {
-  return apiClient.get('/universities/dropdown');
-};
-
 export const getCities = async () => {
   return apiClient.get('/universities/cities');
-};
-
-export const getUniversitiesByCity = async (cityName) => {
-  return apiClient.get(`/universities/city/${encodeURIComponent(cityName)}`);
 };
 
 export const getUniversity = async (id) => {
@@ -38,18 +30,6 @@ export const getUniversityHostels = async (id) => {
 
 export const getUniversityRankings = async (id) => {
   return apiClient.get(`/merit-cutoffs/university/${id}`);
-};
-
-export const searchPrograms = async (params) => {
-  return apiClient.get('/universities/programs/search', { params });
-};
-
-export const getCategories = async () => {
-  return apiClient.get('/universities/programs/categories');
-};
-
-export const getAdmissionTests = async () => {
-  return apiClient.get('/universities/admission-tests');
 };
 
 export const getTestBreakdowns = async (params) => {
